@@ -1,0 +1,268 @@
+<script type="text/javascript">
+var formatDate = function(date) {
+    return moment(date).fromNow();
+}
+jQuery(function($) {
+    var tbl = $('#admin-users table');
+    var refresh = function() {
+        $.get(
+            tbl.data('resource'),
+            {
+                i: tbl.data('index'),
+                n: tbl.data('page-size'),
+                s: tbl.data('sortDirection') + tbl.data('sort'),
+                q: tbl.data('query')
+            },
+            function(data) {
+                a = []
+                for (var i=0; i<data.items.length; i++) {
+                    x = data.items[i];
+                    a.push('<tr data-user-id="', x._id, '" data-user-active="', x.active, '">');
+                    a.push('<td>', x.active ? '<i class="icon-ok"></i>' : '','</td>');
+                    a.push('<td>', x.last, '</td>');
+                    a.push('<td>', x.first, '</td>');
+                    a.push('<td>', x.company, '</td>');
+                    a.push('<td><a href="mailto:', x.email, '">', x.email, '</a></td>');
+                    a.push('<td>', formatDate(x.created), '</td>');
+                    a.push('<td>');
+                    if (x.online) a.push('&nbsp;<span class="label label-success">online</span>');
+                    else a.push(formatDate(x.last_login));
+                    a.push('</td>');
+                    a.push('<td>', 
+                           '<div class="btn-group">',
+                           '<a href="#" class="btn btn-mini btn-user-toggle" title="Activate/Deactivate User"><i class="icon-check"></i></a>',
+                           '<a href="#" class="btn btn-mini btn-user-password" title="Set User Password"><i class="icon-asterisk"></i></a>',
+                           '<a target="_blank" href="/admin/users/', x._id,'/impersonate" class="btn btn-mini btn-user-impersonate" title="Impersonate User"><i class="icon-eye-open"></i></a>',
+                           '<a target="_blank" href="/admin/users/', x._id,'/quiz-details" class="btn btn-mini">Quiz Details</a>',
+                           '<a href="#" class="btn btn-mini btn-user-notes" title="Notes"><i class="icon-edit"></i>&nbsp;Notes</a>',
+                           '</div>',
+                           '</td>');
+                    a.push('</tr>');
+                }
+                tbl.find('tbody').html(a.join(''));
+                tbl.data('index', data.i);
+                tbl.data('page-size', data.n);
+
+                // piece together a paginator
+                a = [];
+                a.push('<li');
+                if (data.i == 0) a.push(' class="disabled"');
+                a.push('><a href="#" data-index="0">«</a></li>')
+                var pages = Math.ceil(data.count/data.n);
+                var first = data.i;
+                var last = first;
+                while (last-first < 10*(data.n-1) && (first-data.n >= 0 || last+data.n <= data.count))
+                {
+                    if (last+data.n <= data.count)
+                    {
+                        last += data.n;
+                    }
+                    if (first-data.n >= 0 && last-first < 10*(data.n-1))
+                    {
+                        first -= data.n;
+                    }
+                }
+                var i = first;
+                while (i <= last)
+                {
+                    a.push('<li');
+                    if (data.i >= i && data.i < i+data.n) a.push(' class="active"');
+                    a.push('><a href="#" data-index="', i, '">', 1+(i/data.n) ,'</a></li>')
+                    i += data.n;
+                }
+                a.push('<li');
+                if ((data.i + data.n) > data.count) a.push(' class="disabled"');
+                a.push('><a href="#" data-index="', data.n * Math.floor(data.count/data.n), '">»</a></li>')
+                $('#admin-users .pagination > ul').html(a.join(''));
+
+            }
+        );
+    }
+    refresh();
+
+    $('#admin-users th > a').live('click', function() {
+        var sort = $(this).data('sort');
+        if (tbl.data('sort') === sort) {
+            tbl.data('sortDirection', tbl.data('sortDirection') == '-' ? '' : '-');
+        }
+        else tbl.data({sort: sort, sortDirection: '', index: 0});
+        refresh();
+    });
+    $('#admin-users .pagination a').live('click', function() {
+        tbl.data('index', $(this).data('index'));
+        refresh();
+    });
+    
+    $('#admin-users .btn-user-toggle').live('click', function() {
+        var userId = $(this).closest('tr').data('user-id');
+        var userActive = $(this).closest('tr').data('user-active');
+        $('#admin-user-toggle h3').text(userActive ? 'Deactivate User' : 'Activate User');
+        $('#admin-user-toggle .btn-primary').text(userActive ? 'Deactivate User' : 'Activate User');
+        $('#admin-user-toggle-state').text(userActive ? 'deactivate' : 'activate');
+        $('#admin-user-toggle input[name="active"]').val(userActive ? 0 : 1);
+        $('#admin-user-toggle form').attr('action', '/admin/api/user/' + userId);
+        $('#admin-user-toggle').modal('show');
+        return false;
+    });
+    $('#admin-users .btn-user-password').live('click', function() {
+        var userId = $(this).closest('tr').data('user-id');
+        $('#admin-user-password form').attr('action', '/admin/api/user/' + userId);
+        $('#admin-user-password input[name="password"]').val('');
+        $('#admin-user-password').modal('show');
+        return false;
+    });
+    $('#admin-users .btn-user-impersonate').live('click', function() {
+        return confirm('Are you sure you wish to impersonate this user?\n' +
+                       'Any action you take will appear as though this user performed it!\n' + 
+                       'Please do not abuse this feature.');
+    });
+    $('#admin-user-toggle .btn-primary').click(function() {
+        $('#admin-user-toggle form').ajaxSubmit({
+            success: function (data) {
+                $('#admin-user-toggle').modal('hide');
+                refresh();
+            },
+            error: function (xhr, err) {
+                $('#admin-user-toggle .alert-error').show(); 
+            },
+            complete: function() {
+                $('#admin-user-toggle .btn-primary').button('reset');
+            }
+        });
+        $('#admin-user-toggle .alert').hide();
+        $('#admin-user-toggle .btn-primary').button('loading');
+        return false;
+    });
+    $('#admin-user-password .btn-primary').click(function() {
+        $('#admin-user-password form').ajaxSubmit({
+            success: function (data) {
+                $('#admin-user-password').modal('hide');
+                refresh();
+            },
+            error: function (xhr, err) {
+                $('#admin-user-password .alert-error').show(); 
+            },
+            complete: function() {
+                $('#admin-user-password .btn-primary').button('reset');
+            }
+        });
+        $('#admin-user-password .alert').hide();
+        $('#admin-user-password .btn-primary').button('loading');
+        return false;
+    });
+    
+    $('#admin-users .btn-user-notes').live('click', function() {
+        $('#admin-user-notes .modal-body').html($.loading);
+        $.ajax({
+            type: 'GET',
+            url: '/admin/users/' + $(this).closest('tr').data('user-id') + '/protected'
+        }).done(function(data) {
+            $('#admin-user-notes .modal-body').html(data);
+        });
+        $('#admin-user-notes').modal('show');
+        return false;
+    });
+    $('#admin-user-notes .modal-footer .btn-primary').click(function() {
+        $('#admin-user-notes form').submit();
+        return false;
+    });
+
+    $('#admin-users .form-search').submit(function() {
+        $('#admin-users .table').data('query', $('#admin-users .form-search input[type="search"]').val());
+        refresh();
+        return false;
+    });
+
+});
+</script>
+
+<section id="admin-users">
+    <header class="page-header">
+        <h1>Users</h1>
+        <form class="form-search pull-right" style="margin-top: -42px">
+            <div class="input-append">
+                <input type="search" class="input-xxl search-query" placeholder="First, last, employer, and email" />
+                <button type="submit" class="btn">
+                    <i class="icon-search"></i>
+                    Search
+                </button>
+            </div>
+        </form>
+    </header>
+    <table class="table table-striped table-hover"
+           data-resource="/admin/api/user"
+           data-page-size="10"
+           data-index="0"
+           data-sort="last"
+           data-sort-direction="">
+        <thead>
+            <tr>
+                <th><a href="#" data-sort="active">Active</a></th>
+                <th><a href="#" data-sort="last">Last Name</a></th>
+                <th><a href="#" data-sort="first">First Name</a></th>
+                <th><a href="#" data-sort="company">Employer</a></th>
+                <th><a href="#" data-sort="email">Email</a></th>
+                <th><a href="#" data-sort="created">Date Created</a></th>
+                <th><a href="#" data-sort="last_login">Last Login</a></th>
+                <th><!-- action buttons --></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div class="pagination"><ul></ul></div>
+
+    <div id="admin-user-toggle" class="modal hide">
+        <header class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h3>Activate User</h3>
+        </header>
+        <div class="modal-body">
+            Are you sure that you want to <span id="admin-user-toggle-state"></span> this user?
+            <form action="/admin/api/user" method="put" class="form-inline">
+                <input type="hidden" name="active" />
+                <div class="alert error hide">
+                    There was a problem completing this request.
+                </div>
+            </form>
+        </div>
+        <footer class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+            <a href="#" class="btn btn-primary">Activate User</a>
+        </footer>
+    </div>
+
+    <div id="admin-user-password" class="modal hide">
+        <header class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h3>Set Password</h3>
+        </header>
+        <div class="modal-body">
+            <form action="/admin/api/user" method="put" class="form-inline">
+                <label>New Password:</label> <input type="text" name="password" />
+                <div class="alert error hide">
+                    There was a problem completing this request.
+                </div>
+            </form>
+        </div>
+        <footer class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+            <a href="#" class="btn btn-primary">Set Password</a>
+        </footer>
+    </div>
+
+    <div id="admin-user-notes" class="modal hide">
+        <header class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">×</button>
+            <h3>Notes for User</h3>
+        </header>
+        <div class="modal-body">
+            
+        </div>
+        <footer class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+            <a href="#" class="btn btn-primary">Update Notes</a>
+        </footer>
+    </div>
+
+</section>

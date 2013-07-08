@@ -1,0 +1,118 @@
+{{#unless xhr}}
+<h1>Password Reset</h1>
+{{/unless}}
+
+<form id="form-complete-reset" method="post" action="/api/reset" class="form-horizontal {{#unless email}}hide{{/unless}}">
+    <fieldset>
+        <div class="alert alert-success hide">
+            <strong>Email Sent</strong>
+            You should receive an email very shortly with a four digit PIN. Enter it below along with a new password.
+        </div>    
+        <div class="alert alert-error hide">
+            <strong>Password Reset Failed</strong>
+            There was a problem completing your password reset request.
+        </div>
+        <div class="alert alert-warn hide">
+            <strong>Email or PIN Incorrect</strong>
+            Either your email address or PIN was entered incorrectly, or that PIN has expired.
+            You may want to <a href="/reset">request another PIN</a>.
+        </div>
+        {{ helper 'fields/text'     label="Email Address"    id="complete-reset-email"    name="email"    class="required" size="medium" val=email }}
+        {{ helper 'fields/text'     label="PIN"              id="complete-reset-pin"      name="pin"      class="required" size="medium" }}    
+        {{ helper 'fields/password' label="New Password"     id="complete-reset-password" name="password" class="required" size="medium" }}
+        {{ helper 'fields/password' label="Confirm Password" id="complete-reset-confirm"  name="confirm"  class="required" size="medium" }}
+        <div class="control-group">
+            <div class="controls">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </div>
+    </fieldset>
+</form>
+
+{{#unless email}}
+<form id="form-send-reset" method="post" action="/api/reset" class="form-horizontal">
+    <fieldset>
+        <div class="alert alert-error hide">
+            <strong>Password Reset Failed</strong>
+            There was a problem sending your password reset email. Perhaps this isn't the email address
+            that you used when you registered your original account?
+        </div>
+        <div class="alert alert-warn hide">
+            <strong>Email not Found</strong>
+            We could not find an account with that email address. Would you like to <a href="/">register a new account</a>?
+        </div>
+        {{ helper 'fields/text'     label="Email Address"    id="reset-email"    name="email"    class="required" size="medium" help="Enter the email address you used when you registered your account." }}
+        <div class="control-group">
+            <div class="controls">
+                <input type="submit" value="Send Email" class="btn btn-primary" />
+            </div>
+        </div>
+    </fieldset>
+</form>
+{{/unless}}
+
+<div class="alert alert-success alert-block hide">
+    <h4>Password Reset Complete</h4>
+    Your password has been succesfully reset. You may login immediatley with your new password.
+</div>
+
+<script type="text/javascript">
+jQuery(function($) {
+    $('#form-send-reset').validate({
+        rules: {
+            email: { required: true, email: true }
+        },
+        submitHandler: function(form) {
+            form = $(form);
+            form.ajaxSubmit({
+                success: function (data) {
+                    $('#form-send-reset').hide();
+                    $('#form-complete-reset').show().find('.alert-success').show();
+                    $('#complete-reset-email').val($('#reset-email').val());
+                },
+                error: function (xhr, err) {
+                    if (xhr.status == 404) form.find('.alert-warn').show();
+                    else form.find('.alert-error').show();  
+                },
+                complete: function() {
+                    form.find(':input:not(:submit)').removeAttr('disabled');
+                    form.find(':submit').button('reset');
+                }
+            });
+            form.find('.alert').hide();
+            form.find(':input:not(:submit)').attr('disabled', 'disabled');
+            form.find(':submit').button('loading');
+            return false;
+        }
+    });
+    $('#form-complete-reset').validate({
+        rules: {
+            email: { required: true, email: true },
+            pin: { required: true, minlength: 4, maxlength: 4 },
+            password: { minlength: 6 },
+            confirm: { minlength: 6, equalTo: '#complete-reset-password' },
+        },
+        submitHandler: function(form) {
+            form = $(form);
+            form.ajaxSubmit({
+                success: function (data) {
+                    form.hide();
+                    form.parent().find('.alert-success').show();
+                },
+                error: function (xhr, err) {
+                    if (xhr.status == 404) form.find('.alert-warn').show();
+                    else form.find('.alert-error').show();  
+                },
+                complete: function() {
+                    form.find(':input:not(:submit)').removeAttr('disabled');
+                    form.find(':submit').button('reset');
+                }
+            });
+            form.find('.alert').hide();
+            form.find(':input:not(:submit)').attr('disabled', 'disabled');
+            form.find(':submit').button('loading');
+            return false;
+        }
+    });
+});
+</script>

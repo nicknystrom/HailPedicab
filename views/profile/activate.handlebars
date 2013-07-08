@@ -1,0 +1,13 @@
+
+<p>Please activate your Acme Pedicabs account by entering the code you received via email. The code is long, so you should use your computer's copy and paste functions if possible.</p>
+<form action="/activate" method="post" class="form-inline">
+    {{#if err}}
+    <div class="alert alert-error">
+        The code that you entered could not be used to activate an account. This could be because the account is already activated,
+        or because the code was entered incorrectly. Please double check that your account is not already functioning and that the
+        code was entered correctly.
+    </div>
+    {{/if}}
+    {{ helper 'fields/text'     label="" placeholder="Activation Code" id="code" name="code" class="required" size="xxlarge" value=code }}
+    <input type="submit" value="Activate" class="btn btn-primary" />
+</form>

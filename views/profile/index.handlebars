@@ -1,0 +1,98 @@
+<form class="form-horizontal" id="form-profile" method="post" action="/api/profile">
+    <fieldset>
+        <legend>My Profile</legend>
+        <div class="alert alert-error hide">
+            <strong>Profile Update Faile.</strong>
+            There was a technical problem completing your profile update.
+        </div>
+        {{ helper 'fields/text'     label="First Name"     id="profile-first"   name="first"   val=user.first   name="first"   class="required" size="medium" }}
+        {{ helper 'fields/text'     label="Middle Initial" id="profile-middle"  name="middle"  val=user.middle  name="middle"  class=""         size="medium" }}
+        {{ helper 'fields/text'     label="Last Name"      id="profile-last"    name="last"    val=user.last    name="last"    class="required" size="medium" }}
+        {{ helper 'fields/text'     label="Employer Name"  id="profile-company" name="company" val=user.company name="company" class="required" size="medium" }}
+        <div class="control-group">
+            <div class="controls">
+                <input type="submit" class="clear-fix btn btn-primary" value="Save Profile" />
+            </div>
+        </div>
+    </fieldset>
+</form>
+
+<form class="form-horizontal" id="form-password" method="post" action="/api/profile">
+    <fieldset>
+        <legend>Change My Password</legend>
+        <div class="alert alert-error hide">
+            <strong>Password Change Failed.</strong>
+            There was a technical problem completing your password change.
+        </div>
+        <div class="alert alert-success hide">
+            <strong>Password Change Complete.</strong>
+            Your password has been changed.
+        </div>
+        {{ helper 'fields/password' label="New Password"     id="profile-password" name="password" class="required" size="medium" }}
+        {{ helper 'fields/password' label="Confirm Password" id="profile-confirm"  name="confirm"  class="required" size="medium" }}
+        <div class="control-group">
+            <div class="controls">
+                <input type="submit" class="clear-fix btn btn-primary" value="Change Password" />
+            </div>
+        </div>
+    </fieldset>
+</form>
+
+<script type="text/javascript">
+jQuery(function($) {
+    $('#form-profile').validate({
+        errorElement: 'span',
+        errorClass: 'help-inline',
+        rules: {
+            email: { email: true }
+        },
+        submitHandler: function(form) {
+            form = $(form);
+            form.ajaxSubmit({
+                success: function (data) {
+                    window.location = '/training'
+                },
+                error: function (xhr, err) {
+                    form.find('.alert-error').show();  
+                },
+                complete: function() {
+                    form.find(':input:not(:submit)').removeAttr('disabled');
+                    form.find(':submit').button('reset');
+                }
+            });
+            form.find('.alert').hide();
+            form.find(':input:not(:submit)').attr('disabled', 'disabled');
+            form.find(':submit').button('loading');
+            return false;
+        }
+    });
+    $('#form-password').validate({
+        errorElement: 'span',
+        errorClass: 'help-inline',
+        rules: {
+            password: { minlength: 6 },
+            confirm: { minlength: 6, equalTo: '#profile-password' },
+        },
+        submitHandler: function(form) {
+            form = $(form);
+            form.ajaxSubmit({
+                success: function (data) {
+                    form.find('.alert-success').show();
+                    form.find(':input:not(:submit)').val('');
+                },
+                error: function (xhr, err) {
+                    form.find('.alert-error').show();  
+                },
+                complete: function() {
+                    form.find(':input:not(:submit)').removeAttr('disabled');
+                    form.find(':submit').button('reset');
+                }
+            });
+            form.find('.alert').hide();
+            form.find(':input:not(:submit)').attr('disabled', 'disabled');
+            form.find(':submit').button('loading');
+            return false;
+        }
+    });
+});
+</script>

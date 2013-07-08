@@ -1,0 +1,25 @@
+{
+    "name":"AcmeApp",
+    "version":"0.0.1",
+    "private":true,
+    "main": "index.js",
+    "repository": "https://github.com/belay-nick/AcmeApp.git",
+    "dependencies":{
+        "less": "",
+        "uglify-js": "",
+        "coffee-script": "",
+        "up": "",
+        "mongoose": "",
+        "express": "",
+        "connect-redis": "",
+        "handlebars": "1.0.8",
+        "moment": "",
+        "mime": "",
+        "nodemailer": "",
+        "humanize": "",
+        "node-uuid": "",
+        "stream-buffers": "",
+        "async": ""
+    },
+    "engines" : { "node" : "0.10.12" }
+}
