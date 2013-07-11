@@ -12,7 +12,7 @@ jQuery(function($) {
       return next(e.code);
     }, {
       enableHighAccuracy: enableHighAccuracy,
-      timeout: 10 * 1024
+      timeout: 20 * 1024
     });
   };
   cancelWatch = function() {
@@ -47,17 +47,16 @@ jQuery(function($) {
         if (!(location && coords.accuracy > location.accuracy)) {
           location = coords;
           $('#locating .accuracy:visible').hide();
-          if (location.accuracy >= 200) {
+          if (location.accuracy >= 250) {
             $('#locating .accuracy.none').show();
           }
-          if ((100 <= (_ref = location.accuracy) && _ref < 200)) {
+          if ((125 <= (_ref = location.accuracy) && _ref < 250)) {
             $('#locating .accuracy.low').show();
           }
-          if ((50 < (_ref1 = location.accuracy) && _ref1 < 100)) {
+          if ((75 < (_ref1 = location.accuracy) && _ref1 < 125)) {
             $('#locating .accuracy.medium').show();
           }
-          if (location.accuracy <= 50) {
-            state = 'ready';
+          if (location.accuracy <= 75) {
             return navigate('#hail');
           }
         }
@@ -78,6 +77,10 @@ jQuery(function($) {
     var state;
     cancelWatch();
     return state = 'no-geo';
+  });
+  $('#hail').on('navigate', function() {
+    var state;
+    return state = 'ready';
   });
   return navigate('#locating');
 });

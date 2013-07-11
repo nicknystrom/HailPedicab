@@ -8,7 +8,7 @@ jQuery ($) ->
             (e) -> next(e.code)
             {
                 enableHighAccuracy: enableHighAccuracy,
-                timeout: 10*1024
+                timeout: 20*1024
             })
     cancelWatch = ->
         navigator.geolocation.cancelWatch(watchToken) if watchToken
@@ -32,13 +32,11 @@ jQuery ($) ->
                 unless location and coords.accuracy > location.accuracy
                     location = coords 
                     $('#locating .accuracy:visible').hide()
-                    $('#locating .accuracy.none').show() if location.accuracy >= 200
-                    $('#locating .accuracy.low').show() if 100 <= location.accuracy < 200
-                    $('#locating .accuracy.medium').show() if 50 < location.accuracy < 100
-                    if location.accuracy <= 50
-                        state = 'ready'
-                        return navigate '#hail'
-
+                    $('#locating .accuracy.none').show() if location.accuracy >= 250
+                    $('#locating .accuracy.low').show() if 125 <= location.accuracy < 250
+                    $('#locating .accuracy.medium').show() if 75 < location.accuracy < 125
+                    return navigate '#hail' if location.accuracy <= 75
+                        
             if state is 'ready'
 
                 # update the location as long as its under 50 meters
@@ -53,6 +51,9 @@ jQuery ($) ->
     $('#denied-geo, #no-geo, #no-gps').on 'navigate', ->
         cancelWatch()
         state = 'no-geo'
+
+    $('#hail').on 'navigate', ->
+        state = 'ready'
 
     # start by finding our location
     navigate '#locating'
