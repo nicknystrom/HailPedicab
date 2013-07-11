@@ -1,9 +1,6 @@
-if (process.env.NODE_ENV == 'production')
+var app = require('./app');
+if (process.env.NODE_ENV != 'production')
 {
-	module.exports = require('./.build/app');
+	app.listen(3000);
 }
-else
-{
-	require('coffee-script');
-	module.exports = require('./app')
-}
+module.exports = app;

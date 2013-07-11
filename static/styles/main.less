@@ -1,0 +1,95 @@
+
+@white:      #eee;
+@light:      #aaa;
+@gray:       #242424;
+@black:      #222;
+
+@accent:     #bf4433;
+@accentText: @white;
+
+// --------------------------------------------------------------- MIXINS
+
+.background-size(@size) {
+  -webkit-background-size: @size;
+     -moz-background-size: @size;
+       -o-background-size: @size;
+          background-size: @size;
+}
+
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+     -moz-border-radius: @radius;
+          border-radius: @radius;
+}
+
+.placeholder(@color: @placeholderText) {
+    &:-moz-placeholder { color: @color; }
+    &:-ms-input-placeholder { color: @color; }
+    &::-webkit-input-placeholder { color: @color; }
+}
+
+// --------------------------------------------------------------- FORM AND BUTTON WIDGETS
+
+.widget {
+    display: block;
+    margin-bottom: 20px;
+    border: none;
+    .border-radius(10px);
+    padding: 6px 0;
+    width: 100%;
+    text-align: center;
+    font-size: 1.25em;
+    font-weight: bold;
+    line-height: 1.4em;
+}
+
+button, .btn {
+    .widget;
+    background: @accent;
+    color: @accentText;
+}
+
+input[type=text], textarea {
+    .widget;
+    color: @black;
+    .placeholder(@gray);
+}
+
+// --------------------------------------------------------------- DRIVERS
+
+#drivers {
+
+}
+
+// --------------------------------------------------------------- FARES
+
+#fares {
+    
+    background: @gray;
+
+    > header {
+        margin: 30px 0;
+        background-image: url('../img/logo.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        .background-size(contain);
+        height: 200px;
+    }
+    
+    > section {
+        display: none;
+        padding: 0 20px;
+        color: @white;
+
+        > p {
+            margin-bottom: 20px;
+        }
+
+        &#locating {
+            .accuracy {
+                display: none;
+            }
+        }
+    }
+
+}

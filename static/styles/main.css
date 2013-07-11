@@ -1,0 +1,84 @@
+.widget {
+  display: block;
+  margin-bottom: 20px;
+  border: none;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  padding: 6px 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.25em;
+  font-weight: bold;
+  line-height: 1.4em;
+}
+button,
+.btn {
+  display: block;
+  margin-bottom: 20px;
+  border: none;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  padding: 6px 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.25em;
+  font-weight: bold;
+  line-height: 1.4em;
+  background: #bf4433;
+  color: #eeeeee;
+}
+input[type=text],
+textarea {
+  display: block;
+  margin-bottom: 20px;
+  border: none;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  padding: 6px 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.25em;
+  font-weight: bold;
+  line-height: 1.4em;
+  color: #222222;
+}
+input[type=text]:-moz-placeholder,
+textarea:-moz-placeholder {
+  color: #242424;
+}
+input[type=text]:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #242424;
+}
+input[type=text]::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #242424;
+}
+#fares {
+  background: #242424;
+}
+#fares > header {
+  margin: 30px 0;
+  background-image: url('../img/logo.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  -webkit-background-size: contain;
+  -moz-background-size: contain;
+  -o-background-size: contain;
+  background-size: contain;
+  height: 200px;
+}
+#fares > section {
+  display: none;
+  padding: 0 20px;
+  color: #eeeeee;
+}
+#fares > section > p {
+  margin-bottom: 20px;
+}
+#fares > section#locating .accuracy {
+  display: none;
+}

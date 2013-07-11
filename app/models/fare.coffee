@@ -3,7 +3,7 @@ moment = require('moment')
 {compare_document} = require('../util')
 
 FARE_STATES = [
-    'pending'       # fare submitted
+    'submitted'     # fare submitted
     'expired'       # fare was not dispatched within time limit
     'dispatched'    # driver is on the way
     'active'        # driver is fulfilling ride request
@@ -21,3 +21,5 @@ fare = new mongoose.Schema
     pickedup:         { type: Date }
     completed:        { type: Date }
     canceled:         { type: Date }
+
+module.exports = mongoose.model('fare', fare)
