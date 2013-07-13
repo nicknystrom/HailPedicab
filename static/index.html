@@ -13,6 +13,7 @@
         <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="styles/main.css">
         <!--[if lt IE 9]> <script src="vendor/html5shiv.js"></script> <![enedif]-->
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCOtc2zI-8qAoyajc7fRI2vZQj5oxDqtg&sensor=false"></script>
         <script src="vendor/jquery-2.0.3.min.js"></script>
         <script src="js/fares.js"></script>
     </head>
@@ -24,6 +25,7 @@
                 <span class="accuracy none">(no idea)...</span>
                 <span class="accuracy low">(rough idea)...</span>
                 <span class="accuracy medium">(getting closer)...</span>
+                <div class="map"></div>
             </p>
         </section>
         <section id="denied-geo">
@@ -47,8 +49,24 @@
             <button data-navigate="#locating">Retry</button>
         </section>
         <section id="hail">
-            <input type="text" placeholder="Your Name" id="name" />
-            <button>Hail a Cab!</button>
+            <p class="address">
+                Your approximate address:<br/>
+                <span class="value">(working...)</span>                
+            </p>
+            <fieldset>
+                <input type="text" placeholder="Your Name" id="name" />
+                <button>Hail a Cab!</button>    
+            </fieldset>
+        </section>
+        <section id="submitted">
+        </section>
+        <section id="dispatched">
+        </section>
+        <section id="active">
+        </section>
+        <section id="complete">
+        </section>
+        <section id="canceled">
         </section>
     </body>
 </html>

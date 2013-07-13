@@ -12,13 +12,17 @@ app = express()
 app.use '/',      express.static('static')
 
 # request body, cookies, sessions, and other housekeeping stuff
-app.use express.bodyParser()
-app.use express.cookieParser()
-app.use express.session(
+app.use '/api', express.bodyParser()
+app.use '/api', express.cookieParser()
+app.use '/api', express.session(
     store: new RedisStore()
     key: 's'
     secret: '234987dfghjkq2d39807231ojksdfcjhn3w47869324879'
 )
+app.use '/api', require('./middleware/authn')
+
+require('./api/drivers')(app)
+require('./api/fares')(app)
 
 # application routes
 app.use app.router

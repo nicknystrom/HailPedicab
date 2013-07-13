@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!--[if lt IE 9]> <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width">
+
+        <title>AcmePedicab Driver App</title>
+
+        <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="styles/main.css">
+        <!--[if lt IE 9]> <script src="vendor/html5shiv.js"></script> <![enedif]-->
+        <script src="vendor/jquery-2.0.3.min.js"></script>
+        <script src="vendor/jquery.h5validate.js"></script>
+        <script src="js/drivers.js"></script>
+    </head>
+    <body id="drivers">
+        <header>
+            <h1></h1>
+            <h2></h2>
+            <div id="signout" class="btn" alt="Sign out">
+                <i class="icon-signout"></i>
+                Signout
+            </div>
+        </header>
+        <section id="locating">
+            <p>
+                Finding your location
+                <span class="accuracy none">(no idea)...</span>
+                <span class="accuracy low">(rough idea)...</span>
+                <span class="accuracy medium">(getting closer)...</span>
+            </p>
+        </section>
+        <section id="denied-geo">
+            <p>
+                In order to hail a cab, we need to use your phone's GPS signal to get
+                an exact location to send our driver.
+            </p>
+            <button data-navigate="#locating">Retry</button>
+        </section>
+        <section id="no-geo">
+            <p>
+                Your phone can't or won't tell us where you are.
+            </p>
+            <button data-navigate="#locating">Retry</button>
+        </section>
+        <section id="no-gps">
+            <p>
+                Your phone could not determine your exact location. Try going outside
+                with a clear view of the sky and try again!
+            </p>
+            <button data-navigate="#locating">Retry</button>
+        </section>
+        <section id="start">
+            <p>
+                Please login or create a new driver account to continue:
+            </p>
+            <form id="login">
+                <fieldset>
+                    <input type="email" required placeholder="Email" id="login-email" />
+                    <input type="number" required pattern=".{3,8}" placeholder="Pin" id="login-pin" />
+                    <button><i class="icon-sign-in"></i>Login</button>
+                </fieldset>
+            </form>
+            <form id="register">
+                <fieldset>
+                    <input type="text" required pattern=".{3,20}" placeholder="Name" id="register-name" />
+                    <input type="email" required placeholder="Email" id="register-email" />
+                    <input type="number" required pattern=".{3,8}" placeholder="Pin" id="register-pin" />
+                    <button>Register</button>
+                </fieldset>
+            </form>
+        </section>
+    </body>
+</html>

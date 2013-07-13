@@ -22,6 +22,45 @@
           border-radius: @radius;
 }
 
+.border-top-left-radius(@radius) {
+  -webkit-border-top-left-radius: @radius;
+      -moz-border-radius-topleft: @radius;
+          border-top-left-radius: @radius;
+}
+.border-top-right-radius(@radius) {
+  -webkit-border-top-right-radius: @radius;
+      -moz-border-radius-topright: @radius;
+          border-top-right-radius: @radius;
+}
+.border-bottom-right-radius(@radius) {
+  -webkit-border-bottom-right-radius: @radius;
+      -moz-border-radius-bottomright: @radius;
+          border-bottom-right-radius: @radius;
+}
+.border-bottom-left-radius(@radius) {
+  -webkit-border-bottom-left-radius: @radius;
+      -moz-border-radius-bottomleft: @radius;
+          border-bottom-left-radius: @radius;
+}
+
+.border-top-radius(@radius) {
+  .border-top-right-radius(@radius);
+  .border-top-left-radius(@radius);
+}
+.border-right-radius(@radius) {
+  .border-top-right-radius(@radius);
+  .border-bottom-right-radius(@radius);
+}
+.border-bottom-radius(@radius) {
+  .border-bottom-right-radius(@radius);
+  .border-bottom-left-radius(@radius);
+}
+.border-left-radius(@radius) {
+  .border-top-left-radius(@radius);
+  .border-bottom-left-radius(@radius);
+}
+
+
 .placeholder(@color: @placeholderText) {
     &:-moz-placeholder { color: @color; }
     &:-ms-input-placeholder { color: @color; }
@@ -30,17 +69,21 @@
 
 // --------------------------------------------------------------- FORM AND BUTTON WIDGETS
 
+@widget-margin: 20px;
+@widget-rounding: 0px;
+
 .widget {
     display: block;
-    margin-bottom: 20px;
+    margin-bottom: @widget-margin;
     border: none;
-    .border-radius(10px);
-    padding: 6px 0;
+    .border-radius(@widget-rounding);
+    padding: 12px 0;
     width: 100%;
     text-align: center;
-    font-size: 1.25em;
+    font-size: 1.1em;
     font-weight: bold;
     line-height: 1.4em;
+    text-decoration: none;
 }
 
 button, .btn {
@@ -49,16 +92,96 @@ button, .btn {
     color: @accentText;
 }
 
-input[type=text], textarea {
+input[type=text],
+input[type=number],
+input[type=email],
+textarea {
     .widget;
     color: @black;
-    .placeholder(@gray);
+    .placeholder(@light);
+
+    &.ui-state-error,
+    &:-moz-ui-invalid {
+        box-shadow: none;
+        background: #eaa;
+        color: @white;
+
+    }
+    
 }
+
+fieldset {
+    margin: 0 0 20px 0;
+    border: 0;
+    padding: 0;
+    > input[type=text],
+    > input[type=number],
+    > input[type=email],
+    > textarea,
+    > button {
+        margin: 0;
+        .border-radius(0);
+        &:first-child{ .border-top-radius(@widget-rounding); }
+        &:last-child{ .border-bottom-radius(@widget-rounding); }
+    }
+}
+
+// --------------------------------------------------------------- TYPOGRAPHY
+
+body, h1, h2, h3, h4, h5, p, li, a  {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+p {
+  padding: 0 5px;
+}
+
 
 // --------------------------------------------------------------- DRIVERS
 
 #drivers {
 
+    background: @white;
+    color: @black;
+
+    > header {
+        margin: 20px 10px;
+        background-image: url('../img/logo-footer.png');
+        background-repeat: no-repeat;
+        background-position: left center;
+        padding-left: 100px;
+        height: 82px;
+
+        h1 { font-size: 1.25em; }
+        h2 { font-size: 0.75em; }
+        #signout { display: none; }
+
+        .btn {
+            display: inline-block;
+            background: @gray;
+            color: @white;
+            font-size: 0.75em;
+            margin-top: 10px;
+            width: auto;
+        }
+    }
+    
+    > section {
+        display: none;
+        color: @black;
+
+        > p {
+            margin-bottom: 20px;
+        }
+
+        &#locating {
+            .accuracy {
+                display: none;
+            }
+        }
+    }
 }
 
 // --------------------------------------------------------------- FARES
@@ -68,17 +191,16 @@ input[type=text], textarea {
     background: @gray;
 
     > header {
-        margin: 30px 0;
+        margin: 20px 0;
         background-image: url('../img/logo.png');
         background-repeat: no-repeat;
         background-position: center;
         .background-size(contain);
-        height: 200px;
+        height: 170px;
     }
     
     > section {
         display: none;
-        padding: 0 20px;
         color: @white;
 
         > p {
@@ -88,6 +210,13 @@ input[type=text], textarea {
         &#locating {
             .accuracy {
                 display: none;
+            }
+            .map {
+              position: absolute;
+              width: 100%;
+              top: 250px;
+              bottom: 0;
+              
             }
         }
     }

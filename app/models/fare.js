@@ -12,7 +12,8 @@ FARE_STATES = ['submitted', 'expired', 'dispatched', 'active', 'complete', 'canc
 fare = new mongoose.Schema({
   state: {
     type: String,
-    "enum": FARE_STATES
+    "enum": FARE_STATES,
+    "default": 'submitted'
   },
   name: {
     type: String,
@@ -39,4 +40,10 @@ fare = new mongoose.Schema({
   }
 });
 
+fare.index({
+  location: '2dsphere'
+});
+
 module.exports = mongoose.model('fare', fare);
+
+module.exports.STATE = FARE_STATES;

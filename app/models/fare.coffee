@@ -12,7 +12,7 @@ FARE_STATES = [
 ]
 
 fare = new mongoose.Schema
-    state:            { type: String, enum: FARE_STATES}
+    state:            { type: String, enum: FARE_STATES, default: 'submitted' }
     name:             { type: String, trim: true }
     location:         [Number]
 
@@ -22,4 +22,7 @@ fare = new mongoose.Schema
     completed:        { type: Date }
     canceled:         { type: Date }
 
+fare.index location: '2dsphere'
+
 module.exports = mongoose.model('fare', fare)
+module.exports.STATE = FARE_STATES

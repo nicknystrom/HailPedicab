@@ -16,4 +16,6 @@ driver = new mongoose.Schema
     location:         [Number]
     created:          { type: Date, default: -> new Date() }
 
+driver.index location: '2dsphere'
+
 module.exports = mongoose.model('driver', driver)
