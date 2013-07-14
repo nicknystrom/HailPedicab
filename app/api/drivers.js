@@ -152,7 +152,8 @@ module.exports = function(app) {
         driver = new Driver({
           email: req.body.email,
           name: req.body.name,
-          pin: req.body.pin
+          pin: req.body.pin,
+          location: [0, 0]
         });
         return driver.save(function(err) {
           if (err) {

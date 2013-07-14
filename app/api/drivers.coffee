@@ -103,6 +103,7 @@ module.exports = (app) ->
                     email: req.body.email
                     name: req.body.name
                     pin: req.body.pin
+                    location: [0,0]
                 )
                 driver.save (err) ->
                     return next(err) if err
