@@ -9,13 +9,18 @@ module.exports = function(app) {
   var lookup, report;
   lookup = function(req, res, next) {
     if (req.session && req.session.fare_id) {
-      return Fare.findById(req.session.fare_id, function(err, fare) {
+      return Fare.findById(req.session.fare_id).populate('driver').exec(function(err, fare) {
         if (err || (fare == null)) {
           req.session.fare_id = null;
           return res.send(500, err || 'Fare not found.');
         }
         req.fare = fare;
-        return next();
+        if (!fare.expired) {
+          return next();
+        }
+        fare.state = 'expired';
+        fare.canceled = new Date();
+        return fare.save(next);
       });
     } else {
       return next();
@@ -29,7 +34,7 @@ module.exports = function(app) {
       lat: fare.location[1]
     };
   };
-  return app.post('/api/fare', lookup, function(req, res) {
+  app.post('/api/fare', lookup, function(req, res) {
     return async.waterfall([
       function(next) {
         if (!req.fare) {
@@ -70,5 +75,51 @@ module.exports = function(app) {
         return res.send(500, err);
       }
     });
+  });
+  app.get('/api/fare', lookup, function(req, res) {
+    var data;
+    if (!req.fare) {
+      return res.send(401);
+    }
+    data = {
+      state: req.fare.state,
+      estimate: req.fare.estimate
+    };
+    if (req.fare.driver) {
+      data.driver = req.fare.driver.name;
+    }
+    return res.send(200, data);
+  });
+  app["delete"]('/api/fare', lookup, function(req, res) {
+    if (!req.fare) {
+      return res.send(401);
+    }
+    return async.series([
+      function(next) {
+        req.fare.state = 'canceled';
+        req.fare.canceled = new Date();
+        return req.fare.save(next);
+      }, function(next) {
+        req.session.fare_id = null;
+        req.fare = null;
+        return res.send(200, 'Fare request canceled');
+      }
+    ], function(err) {
+      if (err) {
+        return res.send(500, errr);
+      }
+    });
+  });
+  return app.put('/api/fare', lookup, function(req, res) {
+    var _ref;
+    if (!req.fare) {
+      return res.send(401);
+    }
+    if ((_ref = req.fare.state) !== 'complete' && _ref !== 'canceled' && _ref !== 'expired') {
+      return res.send(400);
+    }
+    req.session.fare_id = null;
+    req.fare = null;
+    return res.send(200, 'Thanks');
   });
 };

@@ -15,6 +15,7 @@
         <!--[if lt IE 9]> <script src="vendor/html5shiv.js"></script> <![enedif]-->
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCOtc2zI-8qAoyajc7fRI2vZQj5oxDqtg&sensor=false"></script>
         <script src="vendor/jquery-2.0.3.min.js"></script>
+        <script src="vendor/moment.min.js"></script>
         <script src="js/fares.js"></script>
     </head>
     <body id="fares">
@@ -54,19 +55,68 @@
                 <span class="value">(working...)</span>                
             </p>
             <fieldset>
-                <input type="text" placeholder="Your Name" id="name" />
+                <input type="text" placeholder="Your Name" id="hail-name" />
                 <button>Hail a Cab!</button>    
             </fieldset>
         </section>
         <section id="submitted">
+            <p>
+                Your request has been submitted.
+            </p>
+            <p>
+                Watch this page to be notified when a driver is on the way to pick you up!
+            </p>
+            <button class="cancel">Cancel Request</button>
         </section>
         <section id="dispatched">
+            <p>A driver is on the way!</p>
+            <p>
+                <span class="driver"></span> will be here in about
+                <span class="estimate"></span>.
+            <p>
+            <p>
+                Make sure you are easily visible from the curbside so 
+                you and driver can succesfully meetup!
+            </p>
+            <button class="cancel">Cancel Request</button>
         </section>
         <section id="active">
         </section>
         <section id="complete">
+            <p>
+                Your driver has indicated that you've connected!
+            </p>
+            <p>
+                Have a fun trip, enjoy the city, and remember to be generous to your driver.
+            </p>
+            <p>
+                See you again soon!
+            </p>
+            <button class="done">Return</button>
         </section>
         <section id="canceled">
+            <p>
+                This is unfortunate, but the driver has canceled this request,
+                typically because they can't find you.
+            </p>
+            <p>
+                You might want to resubmit your request quickly, since if the 
+                driver is in the area they may try to find you again. Also make
+                sure to include your name so that the driver can call out for you!
+            </p>
+            <button class="done">Return</button>
+        </section>
+        <section id="expired">
+            <p>
+                No driver has responded within 30 minutes and your request
+                has been canceled.
+            </p>
+            <p>
+                Typically drivers are available in the evening from about 6pm through
+                2am in the busier sections of downtown such as the North Loop, Warehouse,
+                and Downtown West districts.
+            </p>
+            <button class="done">Return</button>
         </section>
     </body>
 </html>

@@ -13,8 +13,10 @@
         <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="styles/main.css">
         <!--[if lt IE 9]> <script src="vendor/html5shiv.js"></script> <![enedif]-->
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCOtc2zI-8qAoyajc7fRI2vZQj5oxDqtg&sensor=false"></script>
         <script src="vendor/jquery-2.0.3.min.js"></script>
         <script src="vendor/jquery.h5validate.js"></script>
+        <script src="vendor/moment.min.js"></script>
         <script src="js/drivers.js"></script>
     </head>
     <body id="drivers">
@@ -73,6 +75,32 @@
                     <button>Register</button>
                 </fieldset>
             </form>
+        </section>
+        <section id="available">
+            <ul>
+
+            </ul>
+        </section>
+        <section id="fare">
+            <div class="map"></div>
+            <fieldset class="ready">
+                <button class="dispatch" data-estimate="10">I'll be there in 10</button>
+                <button class="dispatch" data-estimate="20">I'll be there in 20</button>
+                <button class="nevermind" data-navigate="#available">Nevermind</button>
+            </fieldset>
+            <fieldset class="dispatched">
+                <button class="pickup">I've found <span class="name"></span>!</button>
+                <button class="cancel">Cancel</button>
+            </fieldset>
+        </section>
+        <section id="canceled">
+            <p>The rider has canceled this request.</p>
+            <p>
+                If you were having trouble find the rider in a crowded area,
+                you may want to watch the submitted requests for a similiar ride 
+                nearby, as users can resubmit their request immediatley.
+            </p>
+            <button class="done">Return</button>
         </section>
     </body>
 </html>

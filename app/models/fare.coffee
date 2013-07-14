@@ -15,6 +15,8 @@ fare = new mongoose.Schema
     state:            { type: String, enum: FARE_STATES, default: 'submitted' }
     name:             { type: String, trim: true }
     location:         [Number]
+    driver:           { type: mongoose.Schema.Types.ObjectId, ref: 'driver' }
+    estimate:         { type: Date }
 
     created:          { type: Date, default: -> new Date() }
     dispatched:       { type: Date }
@@ -23,6 +25,13 @@ fare = new mongoose.Schema
     canceled:         { type: Date }
 
 fare.index location: '2dsphere'
+
+fare.virtual('expired').get ->  @state is 'submitted' and moment().subtract(30, 'm') > @created
+
+fare.statics.findAvailable = (driver, next) ->
+    @find(state: 'submitted')
+        .where('created').gt(moment().subtract(30, 'm'))
+        .exec(next)
 
 module.exports = mongoose.model('fare', fare)
 module.exports.STATE = FARE_STATES

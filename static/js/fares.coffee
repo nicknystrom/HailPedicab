@@ -22,6 +22,7 @@ jQuery ($) ->
     map = null
     circle = null
     location = null
+    state = null
     $('#locating').on 'navigate', ->
         state = 'locating'
 
@@ -98,13 +99,10 @@ jQuery ($) ->
         geocoder = new google.maps.Geocoder() unless geocoder
         geocoder.geocode { latLng: new google.maps.LatLng(location.latitude, location.longitude) },
             (data, status) ->
-                console.log status
                 return if address
                 return $('#hail .address .value').text("#{location.latitude}, #{location.longitude}") if not data or data.length is 0
                 address = data[0].formatted_address                    
                 $('#hail .address .value').text(address)
-
-        
 
     $('#hail button').click ->
         req = $.ajax(type: 'post', url: '/api/fare', data: {
@@ -113,10 +111,56 @@ jQuery ($) ->
             lat: location.latitude
         })
         req.done (data) ->
-            console.log data
-            state = data.state
+            process (data), -> setTimeout(refresh, REFRESH_INTERVAL)
             navigate('#submitted')
         req.fail (err) -> alert "Error creating fare:\n#{err.responseText}"
 
-    # start by finding our location
-    navigate '#locating'
+    # most requests return a standard driver response envelope
+    process = (data, next) ->
+        return next('no-data') unless data
+
+        state = data.state
+
+        navigate '#canceled' if data.state is 'canceled'
+        navigate '#submitted' if data.state is 'submitted'
+        navigate '#dispatched' if data.state is 'dispatched'
+        navigate '#complete' if data.state is 'complete'
+        navigate '#expired' if data.state is 'expired'
+
+        $('#fares > section .driver').text(data.driver)
+        $('#fares > section .estimate').text(moment(data.estimate).fromNow())
+
+        next()
+
+    REFRESH_INTERVAL = 30*1000
+    refresh = (next) ->
+
+        # check current status
+        req = $.ajax type: 'get', url: '/api/fare'
+        req.done (data) -> process data, ->
+            next() if next
+            setTimeout(refresh, REFRESH_INTERVAL)    
+        req.fail (err) -> 
+            navigate '#locating' if err.status is 401
+
+    $('#fares > section button.cancel').on 'click', ->
+        text = 'Are you sure you want to cancel your request?'
+        text = 'Your driver is already on the way! ' + text if state is 'dispatched'
+        if confirm(text)
+            req = $.ajax(
+                type: 'delete'
+                url: '/api/fare'
+            )
+            req.done (data) -> process data, -> navigate '#locating'
+            req.fail (err) -> alert(err.responseText)
+
+    $('#fares > section button.done').on 'click', ->
+        req = $.ajax(
+            type: 'put'
+            url: '/api/fare'
+        )
+        req.done (data) -> process data, -> navigate '#locating'
+        req.fail (err) -> alert(err.responseText)
+
+
+    refresh()

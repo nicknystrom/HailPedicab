@@ -20,6 +20,13 @@ fare = new mongoose.Schema({
     trim: true
   },
   location: [Number],
+  driver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'driver'
+  },
+  estimate: {
+    type: Date
+  },
   created: {
     type: Date,
     "default": function() {
@@ -43,6 +50,16 @@ fare = new mongoose.Schema({
 fare.index({
   location: '2dsphere'
 });
+
+fare.virtual('expired').get(function() {
+  return this.state === 'submitted' && moment().subtract(30, 'm') > this.created;
+});
+
+fare.statics.findAvailable = function(driver, next) {
+  return this.find({
+    state: 'submitted'
+  }).where('created').gt(moment().subtract(30, 'm')).exec(next);
+};
 
 module.exports = mongoose.model('fare', fare);
 

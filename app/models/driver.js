@@ -23,6 +23,10 @@ driver = new mongoose.Schema({
     trim: true
   },
   location: [Number],
+  fare: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'fare'
+  },
   created: {
     type: Date,
     "default": function() {

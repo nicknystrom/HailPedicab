@@ -14,6 +14,7 @@ driver = new mongoose.Schema
     name:             { type: String, trim: true }
     email:            { type: String, trim: true }
     location:         [Number]
+    fare:             { type: mongoose.Schema.Types.ObjectId, ref: 'fare' }
     created:          { type: Date, default: -> new Date() }
 
 driver.index location: '2dsphere'

@@ -8,34 +8,73 @@ Fare = require('../models/fare');
 async = require('async');
 
 module.exports = function(app) {
-  var lookup, report;
+  var lookup, report, serializeFare;
   lookup = function(req, res, next) {
     if (req.session && req.session.driver_id) {
-      return Driver.findById(req.session.driver_id, function(err, driver) {
+      return Driver.findById(req.session.driver_id).populate('fare').exec(function(err, driver) {
         if (err || (driver == null)) {
           req.session.driver_id = null;
           return res.send(500, err || 'Driver not found.');
         }
         req.driver = driver;
+        req.dispatch = driver.fare;
         return next();
       });
     } else {
       return next();
     }
   };
-  report = function(driver, res) {
-    return {
-      driver: {
-        name: driver.name,
-        email: driver.email
-      }
+  serializeFare = function(f) {
+    var data;
+    if (!f) {
+      return void 0;
+    }
+    data = {
+      id: f.id,
+      state: f.state,
+      name: f.name,
+      long: 0,
+      lat: 0,
+      created: f.created
     };
+    if (f.location && f.location.length > 0) {
+      data.long = f.location[0];
+    }
+    if (f.location && f.location.length > 1) {
+      data.lat = f.location[1];
+    }
+    return data;
+  };
+  report = function(driver, dispatch, next) {
+    return Fare.findAvailable(driver, function(err, fares) {
+      var f;
+      if (err) {
+        return next(err);
+      }
+      return next(null, {
+        fare: serializeFare(dispatch),
+        fares: (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = fares.length; _i < _len; _i++) {
+            f = fares[_i];
+            _results.push(serializeFare(f));
+          }
+          return _results;
+        })(),
+        driver: {
+          name: driver.name,
+          email: driver.email,
+          state: driver.state
+        }
+      });
+    });
   };
   app.post('/api/session', function(req, res) {
     return Driver.findOne({
       email: req.body.email,
       pin: req.body.pin
-    }, function(err, driver) {
+    }).populate('fare').exec(function(err, driver) {
       if (err) {
         return res.send(500, err);
       }
@@ -43,16 +82,56 @@ module.exports = function(app) {
         return res.send(401);
       }
       req.driver = driver;
+      req.dispatch = driver.fare;
       req.session.driver_id = driver.id;
-      return res.send(200, report(driver));
+      if (!req.dispatch) {
+        req.driver.state = 'ready';
+      }
+      if (req.dispatch) {
+        req.driver.state = 'dispatched';
+      }
+      return req.driver.save(function(err) {
+        if (err) {
+          return res.send(500, err);
+        }
+        return report(req.driver, req.dispatch, function(err, data) {
+          if (err) {
+            return res.send(500, err);
+          }
+          return res.send(200, data);
+        });
+      });
     });
   });
-  app["delete"]('/api/session', function(req, res) {
+  app["delete"]('/api/session', lookup, function(req, res) {
     if (!req.session) {
       return res.send(200, 'No session');
     }
     req.session.driver_id = null;
-    return res.send(200, 'Goodbye');
+    return async.series([
+      function(next) {
+        if (!req.dispatch) {
+          return next();
+        }
+        req.dispatch.state = 'canceled';
+        req.dispatch.canceled = new Date();
+        return req.dispatch.save(next);
+      }, function(next) {
+        if (!req.driver) {
+          return next();
+        }
+        req.driver.fare = null;
+        req.driver.state = 'offline';
+        return req.driver.save(next);
+      }, function(next) {
+        res.send(200, 'Goodbye');
+        return next();
+      }
+    ], function(err) {
+      if (err) {
+        return res.send(500, err);
+      }
+    });
   });
   app.post('/api/driver', function(req, res) {
     return async.waterfall([
@@ -86,8 +165,13 @@ module.exports = function(app) {
         req.driver = driver;
         return next(null, driver);
       }, function(driver, next) {
-        res.send(200, report(driver));
-        return next();
+        return report(driver, null, function(err, data) {
+          if (err) {
+            return next(err);
+          }
+          res.send(200, data);
+          return next();
+        });
       }
     ], function(err) {
       if (err) {
@@ -100,10 +184,170 @@ module.exports = function(app) {
       return res.send(401);
     }
   });
-  return app.get('/api/driver', lookup, function(req, res) {
+  app.get('/api/driver', lookup, function(req, res) {
     if (!req.driver) {
       return res.send(401);
     }
-    return res.send(200, report(req.driver));
+    return report(req.driver, req.dispatch, function(err, data) {
+      if (err) {
+        return res.send(500, err);
+      }
+      return res.send(200, data);
+    });
+  });
+  app.post('/api/dispatch/:fare', lookup, function(req, res) {
+    if (!req.driver) {
+      return res.send(401);
+    }
+    return async.waterfall([
+      function(next) {
+        return Fare.findById(req.params.fare, function(err, fare) {
+          if (err) {
+            return next(err);
+          }
+          if (fare.state !== 'submitted') {
+            return res.send(400, "Fare cannot be dispatched at this time (current state is " + fare.state + ").");
+          }
+          return next(null, fare);
+        });
+      }, function(fare, next) {
+        if (!req.dispatch) {
+          return next(null, fare);
+        }
+        req.dispatch.state = 'canceled';
+        req.dispatch.canceled = new Date();
+        return req.dispatch.save(function(err) {
+          if (err) {
+            return next(err);
+          }
+          req.driver.fare = null;
+          req.dispatch = null;
+          return next(null, fare);
+        });
+      }, function(fare, next) {
+        req.dispatch = fare;
+        req.driver.fare = fare;
+        req.driver.state = 'dispatched';
+        return req.driver.save(function(err) {
+          if (err) {
+            return next(err);
+          }
+          return next();
+        });
+      }, function(next) {
+        req.dispatch.driver = req.driver;
+        req.dispatch.state = 'dispatched';
+        req.dispatch.estimate = req.body.estimate;
+        req.dispatch.dispatched = new Date();
+        return req.dispatch.save(function(err) {
+          if (err) {
+            return next(err);
+          }
+          return next();
+        });
+      }, function(next) {
+        return report(req.driver, req.dispatch, function(err, data) {
+          if (err) {
+            return next(err);
+          }
+          res.send(200, data);
+          return next();
+        });
+      }
+    ], function(err) {
+      if (err) {
+        return res.send(500, err);
+      }
+    });
+  });
+  app.put('/api/dispatch/:fare', lookup, function(req, res) {
+    if (!req.driver) {
+      return res.send(401);
+    }
+    if (!(req.dispatch && req.driver.state === 'dispatched')) {
+      return res.send(400);
+    }
+    if (req.dispatch.id !== req.params.fare) {
+      return res.send(403);
+    }
+    return async.series([
+      function(next) {
+        req.dispatch.state = 'complete';
+        req.dispatch.pickedup = new Date();
+        req.dispatch.completed = new Date();
+        return req.dispatch.save(next);
+      }, function(next) {
+        req.dispatch = null;
+        req.driver.state = 'ready';
+        req.driver.fare = null;
+        return req.driver.save(next);
+      }, function(next) {
+        return report(req.driver, req.dispatch, function(err, data) {
+          if (err) {
+            return next(err);
+          }
+          res.send(200, data);
+          return next();
+        });
+      }
+    ], function(err) {
+      if (err) {
+        return res.send(500, err);
+      }
+    });
+  });
+  app["delete"]('/api/dispatch', lookup, function(req, res) {
+    if (!req.driver) {
+      return res.send(401);
+    }
+    req.dispatch = null;
+    req.driver.fare = null;
+    req.driver.state = 'ready';
+    return req.driver.save(function(err) {
+      if (err) {
+        return res.send(500, err);
+      }
+      return report(req.driver, req.dispatch, function(err, data) {
+        if (err) {
+          return res.send(500, err);
+        }
+        return res.send(200, data);
+      });
+    });
+  });
+  return app["delete"]('/api/dispatch/:fare', lookup, function(req, res) {
+    if (!req.driver) {
+      return res.send(401);
+    }
+    if (!(req.dispatch && req.driver.state === 'dispatched')) {
+      return res.send(400);
+    }
+    if (req.dispatch.id !== req.params.fare) {
+      return res.send(403);
+    }
+    return async.series([
+      function(next) {
+        req.dispatch.state = 'canceled';
+        req.dispatch.canceled = new Date();
+        return req.dispatch.save(next);
+      }, function(next) {
+        req.dispatch = null;
+        req.driver.fare = null;
+        req.driver.state = 'ready';
+        return req.driver.save(next);
+      }, function(next) {
+        return report(req.driver, req.dispatch, function(err, data) {
+          if (err) {
+            return next(err);
+          }
+          res.send(200, data);
+          return next();
+        });
+      }
+    ], function(err) {
+      if (err) {
+        return res.send(500, err);
+      }
+    });
   });
 };

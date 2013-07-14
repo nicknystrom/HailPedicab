@@ -126,6 +126,8 @@ h3,
 h4,
 h5,
 p,
+ul,
+ol,
 li,
 a {
   font-family: sans-serif;
@@ -173,6 +175,85 @@ p {
 }
 #drivers > section#locating .accuracy {
   display: none;
+}
+#drivers > section#available > ul {
+  list-style: none;
+}
+#drivers > section#available > ul > li {
+  display: block;
+  margin-bottom: 20px;
+  border: none;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  padding: 12px 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  line-height: 1.4em;
+  text-decoration: none;
+  margin-bottom: 0;
+  color: #eeeeee;
+  background: #81c6dd;
+}
+#drivers > section#available > ul > li:nth-child(2n) {
+  background: #6dbdd8;
+}
+#drivers > section#available > ul > li > span {
+  float: left;
+  overflow: hidden;
+}
+#drivers > section#available > ul > li > span.name {
+  width: 40%;
+  text-align: left;
+}
+#drivers > section#available > ul > li > span.name > .value {
+  padding-left: 8px;
+}
+#drivers > section#available > ul > li > span.distance {
+  width: 20%;
+  font-size: 0.70em;
+}
+#drivers > section#available > ul > li > span.distance > .value {
+  padding: 0 4px;
+}
+#drivers > section#available > ul > li > span.since {
+  display: block;
+  float: none;
+  width: 40%;
+  font-size: 0.70em;
+}
+#drivers > section#available > ul > li > span.since > .value {
+  padding-right: 8px;
+}
+#drivers > section#fare > .map {
+  position: absolute;
+  top: 130px;
+  left: 0;
+  right: 0;
+  bottom: 152px;
+}
+#drivers > section#fare.dispatched > .map {
+  bottom: 101px;
+}
+#drivers > section#fare.dispatched > fieldset.ready {
+  display: none;
+}
+#drivers > section#fare.dispatched > fieldset.dispatched {
+  display: block;
+}
+#drivers > section#fare > fieldset {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  margin-bottom: 0;
+}
+#drivers > section#fare > fieldset.dispatched {
+  display: none;
+}
+#drivers > section#fare button.nevermind {
+  background: #81c6dd;
 }
 #fares {
   background: #242424;

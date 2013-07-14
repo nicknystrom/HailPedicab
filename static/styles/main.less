@@ -7,6 +7,9 @@
 @accent:     #bf4433;
 @accentText: @white;
 
+@accentBlue: #81C6DD;
+@accentBlueAlt: darken(@accentBlue, 5%);
+
 // --------------------------------------------------------------- MIXINS
 
 .background-size(@size) {
@@ -128,7 +131,7 @@ fieldset {
 
 // --------------------------------------------------------------- TYPOGRAPHY
 
-body, h1, h2, h3, h4, h5, p, li, a  {
+body, h1, h2, h3, h4, h5, p, ul, ol, li, a  {
     font-family: sans-serif;
     margin: 0;
     padding: 0;
@@ -181,6 +184,74 @@ p {
                 display: none;
             }
         }
+
+        &#available {
+            > ul {
+                list-style: none;
+                > li {
+                    .widget();
+                    margin-bottom: 0;
+                    color: @white;
+                    background: @accentBlue;
+                    &:nth-child(2n) {
+                        background: @accentBlueAlt;
+                    }
+                    > span {
+                        float: left;
+                        overflow: hidden;
+                        &.name {
+                            width: 40%;
+                            text-align: left;
+                            > .value { padding-left: 8px; }
+                        }
+                        &.distance {
+                            width: 20%;
+                            font-size: 0.70em;
+                            > .value { padding: 0 4px; }
+                        }
+                        &.since {
+                            display: block;
+                            float: none;
+                            width: 40%;
+                            font-size: 0.70em;
+                            > .value { padding-right: 8px; }
+                        }
+                    }
+                }
+
+            }
+        }
+
+        &#fare {
+            > .map {
+                position: absolute;
+                top: 130px;
+                left: 0;
+                right: 0;
+                bottom: 152px;
+            }
+            &.dispatched {
+                > .map {
+                    bottom: 101px;
+                }
+                > fieldset.ready {
+                    display: none;
+                }
+                > fieldset.dispatched {
+                    display: block;
+                }
+            }
+            > fieldset {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                margin-bottom: 0;
+                &.dispatched { display: none; }
+            }
+            button.nevermind {
+                background: @accentBlue;
+            }
+        }
     }
 }
 
@@ -216,7 +287,6 @@ p {
               width: 100%;
               top: 250px;
               bottom: 0;
-              
             }
         }
     }
