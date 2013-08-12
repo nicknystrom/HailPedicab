@@ -15,7 +15,10 @@ jQuery(function($) {
     }
     $('#drivers > header > h1').text(data.driver.name);
     $('#drivers > header > h2').text(data.driver.email);
-    $('#signout').toggle(true);
+    $('#drivers > header > h3').text(data.driver.mobile);
+    $('#drivers > header .btn').toggle(true);
+    $('#profile-name').val(data.driver.name);
+    $('#profile-mobile').val(data.driver.mobile);
     $('#available > ul').empty();
     _ref = data.fares;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -55,7 +58,9 @@ jQuery(function($) {
   refresh(function() {
     return navigate('#available');
   });
-  $('#start').on('navigate', function() {});
+  $('#start').on('navigate', function() {
+    return $('#drivers > header .btn').toggle(false);
+  });
   $('#signout').click(function() {
     var req;
     req = $.ajax({
@@ -110,6 +115,7 @@ jQuery(function($) {
       data: {
         name: $('#register-name').val(),
         email: $('#register-email').val(),
+        mobile: $('#register-mobile').val(),
         pin: $('#register-pin').val()
       }
     });
@@ -121,6 +127,32 @@ jQuery(function($) {
     });
     req.fail(function(err) {
       return alert("Error creating your account:\n" + err.responseText);
+    });
+    return false;
+  });
+  $('#profile-form').on('submit', function() {
+    return false;
+  }).h5Validate().on('formValidated', function(e, data) {
+    var req;
+    if (!data.valid) {
+      return;
+    }
+    req = $.ajax({
+      type: 'put',
+      url: '/api/driver',
+      data: {
+        name: $('#profile-name').val(),
+        mobile: $('#profile-mobile').val()
+      }
+    });
+    req.done(function(data) {
+      return process(data, function() {
+        navigate('#available');
+        return setTimeout(refresh, REFRESH_INTERVAL);
+      });
+    });
+    req.fail(function(err) {
+      return alert("Error updating your account:\n" + err.responseText);
     });
     return false;
   });

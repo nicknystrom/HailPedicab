@@ -65,6 +65,7 @@ module.exports = function(app) {
         driver: {
           name: driver.name,
           email: driver.email,
+          mobile: driver.mobile,
           state: driver.state
         }
       });
@@ -90,6 +91,7 @@ module.exports = function(app) {
       if (req.dispatch) {
         req.driver.state = 'dispatched';
       }
+      req.driver.last_activity = new Date();
       return req.driver.save(function(err) {
         if (err) {
           return res.send(500, err);
@@ -152,8 +154,10 @@ module.exports = function(app) {
         driver = new Driver({
           email: req.body.email,
           name: req.body.name,
+          mobile: req.body.mobile,
           pin: req.body.pin,
-          location: [0, 0]
+          location: [0, 0],
+          last_activity: new Date()
         });
         return driver.save(function(err) {
           if (err) {
@@ -184,6 +188,19 @@ module.exports = function(app) {
     if (!req.driver) {
       return res.send(401);
     }
+    req.driver.name = req.body.name;
+    req.driver.mobile = req.body.mobile;
+    return req.driver.save(function(err) {
+      if (err) {
+        return res.send(500, err);
+      }
+      return report(req.driver, req.dispatch, function(err, data) {
+        if (err) {
+          return res.send(500, err);
+        }
+        return res.send(200, data);
+      });
+    });
   });
   app.get('/api/driver', lookup, function(req, res) {
     if (!req.driver) {

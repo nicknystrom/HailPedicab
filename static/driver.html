@@ -23,10 +23,12 @@
         <header>
             <h1></h1>
             <h2></h2>
-            <div id="signout" class="btn" alt="Sign out">
+            <h3></h3>
+            <a href="#" data-navigate="#profile">Profile</a>
+            <a href="#" id="signout" alt="Sign out">
                 <i class="icon-signout"></i>
                 Signout
-            </div>
+            </a>
         </header>
         <section id="locating">
             <p>
@@ -71,8 +73,21 @@
                 <fieldset>
                     <input type="text" required pattern=".{3,20}" placeholder="Name" id="register-name" />
                     <input type="email" required placeholder="Email" id="register-email" />
+                    <input type="text" placeholder="Mobile Phone" id="register-mobile" />
                     <input type="number" required pattern=".{3,8}" placeholder="Pin" id="register-pin" />
                     <button>Register</button>
+                </fieldset>
+            </form>
+        </section>
+        <section id="profile">
+            <p>
+                Update your profile information:
+            </p>
+            <form id="profile-form">
+                <fieldset>
+                    <input type="text" required pattern=".{3,20}" placeholder="Name" id="profile-name" />
+                    <input type="text" placeholder="Mobile Phone" id="profile-mobile" />
+                    <button>Update</button>
                 </fieldset>
             </form>
         </section>

@@ -12,7 +12,12 @@ jQuery ($) ->
         # update driver header
         $('#drivers > header > h1').text data.driver.name
         $('#drivers > header > h2').text data.driver.email
-        $('#signout').toggle(true)
+        $('#drivers > header > h3').text data.driver.mobile
+        $('#drivers > header .btn').toggle(true)
+
+        # update profile text fields
+        $('#profile-name').val(data.driver.name)
+        $('#profile-mobile').val(data.driver.mobile)
 
         # update fare list
         $('#available > ul').empty()
@@ -50,6 +55,7 @@ jQuery ($) ->
     refresh -> navigate '#available'
 
     $('#start').on 'navigate', ->
+        $('#drivers > header .btn').toggle(false)
 
     $('#signout').click ->
         req = $.ajax type: 'delete', url: '/api/session'
@@ -80,6 +86,7 @@ jQuery ($) ->
         req = $.ajax type: 'post', url: '/api/driver', data: {
             name: $('#register-name').val()            
             email: $('#register-email').val()
+            mobile: $('#register-mobile').val()
             pin: $('#register-pin').val()
         }
         req.done (data) -> process data, ->
@@ -87,6 +94,20 @@ jQuery ($) ->
             setTimeout(refresh, REFRESH_INTERVAL)
         req.fail (err) -> alert "Error creating your account:\n#{err.responseText}"
         false
+
+    $('#profile-form').on('submit', -> false)
+                 .h5Validate()
+                 .on 'formValidated', (e, data) ->
+        return unless data.valid
+        req = $.ajax type: 'put', url: '/api/driver', data: {
+            name: $('#profile-name').val()            
+            mobile: $('#profile-mobile').val()
+        }
+        req.done (data) -> process data, ->
+            navigate('#available')
+            setTimeout(refresh, REFRESH_INTERVAL)
+        req.fail (err) -> alert "Error updating your account:\n#{err.responseText}"
+        false                    
 
     $('#available').on 'click', 'li', (e) ->
         $('#fare').toggleClass('dispatched', false)

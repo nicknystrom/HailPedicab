@@ -155,16 +155,15 @@ p {
 #drivers > header h2 {
   font-size: 0.75em;
 }
-#drivers > header #signout {
-  display: none;
+#drivers > header h3 {
+  font-size: 0.75em;
+  margin-bottom: 0px;
 }
-#drivers > header .btn {
+#drivers > header a {
   display: inline-block;
-  background: #242424;
-  color: #eeeeee;
+  color: #242424;
   font-size: 0.75em;
   margin-top: 10px;
-  width: auto;
 }
 #drivers > section {
   display: none;

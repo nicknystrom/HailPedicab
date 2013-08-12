@@ -22,6 +22,10 @@ driver = new mongoose.Schema({
     type: String,
     trim: true
   },
+  mobile: {
+    type: String,
+    trim: true
+  },
   location: [Number],
   fare: {
     type: mongoose.Schema.Types.ObjectId,
@@ -32,11 +36,18 @@ driver = new mongoose.Schema({
     "default": function() {
       return new Date();
     }
+  },
+  last_activity: {
+    type: Date
   }
 });
 
 driver.index({
   location: '2dsphere'
 });
+
+driver.statics.findOnline = function(next) {
+  return this.where('last_activity').gte(moment().add(-60 * 4, 'm')).exec(next);
+};
 
 module.exports = mongoose.model('driver', driver);

@@ -1,5 +1,7 @@
 Fare = require('../models/fare')
+Driver = require('../models/driver')
 async = require('async')
+twilio = require('twilio')('AC809e521fada9dc4856328d497fc32572', 'ee70f34af8bc81af705c79d467a8fd26')
 
 module.exports = (app) ->
 
@@ -55,6 +57,19 @@ module.exports = (app) ->
                 req.fare = fare
                 req.session.fare_id = fare.id
                 next(null, fare)
+
+            # inform drivers
+            (fare, next) ->
+                Driver.findOnline (err, online) ->
+                    return next(err) if err
+                    for d in online when d.mobile?
+                        twilio.sendSms(
+                            to: d.mobile,
+                            from: '+16519684217',
+                            body: 'New fare posted to http://hailpedicab.com/driver.html'
+                            (err, responseData) ->
+                        )
+                    next(null, fare)
 
             # send to client
             (fare, next) ->

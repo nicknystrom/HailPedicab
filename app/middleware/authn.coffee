@@ -10,5 +10,13 @@ module.exports = (req, res, next) ->
                 req.session.driver_id = null
                 return res.send 500, (err or 'Driver not found.')
             req.driver = driver
-            next()
+
+            # record user activity, but only once per minute, and only for  non-xhr
+            # requests (except for XHR posts, which presumbly represent a user activity)
+            if not req.driver.last_activity? or moment().diff(moment(req.driver.last_activity)) > 1000 * 60 * 20
+                req.driver.last_activity = new Date()
+                req.driver.save next
+            else
+                next()
+
     else next()

@@ -13,7 +13,12 @@ module.exports = function(req, res, next) {
         return res.send(500, err || 'Driver not found.');
       }
       req.driver = driver;
-      return next();
+      if ((req.driver.last_activity == null) || moment().diff(moment(req.driver.last_activity)) > 1000 * 60 * 20) {
+        req.driver.last_activity = new Date();
+        return req.driver.save(next);
+      } else {
+        return next();
+      }
     });
   } else {
     return next();

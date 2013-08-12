@@ -39,6 +39,7 @@ module.exports = (app) ->
                 driver: {
                     name: driver.name
                     email: driver.email
+                    mobile: driver.mobile
                     state: driver.state
                 }
             }
@@ -56,6 +57,7 @@ module.exports = (app) ->
             req.session.driver_id = driver.id
             req.driver.state = 'ready' unless req.dispatch
             req.driver.state = 'dispatched' if req.dispatch
+            req.driver.last_activity = new Date()
             req.driver.save (err) ->
                 return res.send 500, err if err
                 report req.driver, req.dispatch, (err, data) ->
@@ -102,8 +104,10 @@ module.exports = (app) ->
                 driver = new Driver(
                     email: req.body.email
                     name: req.body.name
+                    mobile: req.body.mobile
                     pin: req.body.pin
                     location: [0,0]
+                    last_activity: new Date()
                 )
                 driver.save (err) ->
                     return next(err) if err
@@ -127,6 +131,13 @@ module.exports = (app) ->
     # update profile
     app.put  '/api/driver', lookup, (req, res) ->
         return res.send 401 unless req.driver
+        req.driver.name = req.body.name
+        req.driver.mobile = req.body.mobile
+        req.driver.save (err) ->
+            return res.send 500, err if err
+            report req.driver, req.dispatch, (err, data) ->
+                return res.send 500, err if err
+                res.send 200, data
 
     # return current available fares, driver status, and current fare status
     # meant to be polleds
