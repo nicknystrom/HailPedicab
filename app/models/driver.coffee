@@ -22,6 +22,6 @@ driver = new mongoose.Schema
 driver.index location: '2dsphere'
 
 driver.statics.findOnline = (next) ->
-    @where('last_activity').gte(moment().add(-60*4, 'm')).exec(next)
+    @where('last_activity').gte(moment().add(-60*10, 'm')).exec(next)
 
 module.exports = mongoose.model('driver', driver)

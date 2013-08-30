@@ -47,7 +47,7 @@ driver.index({
 });
 
 driver.statics.findOnline = function(next) {
-  return this.where('last_activity').gte(moment().add(-60 * 4, 'm')).exec(next);
+  return this.where('last_activity').gte(moment().add(-60 * 10, 'm')).exec(next);
 };
 
 module.exports = mongoose.model('driver', driver);
