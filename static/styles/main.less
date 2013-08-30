@@ -127,6 +127,12 @@ fieldset {
         &:first-child{ .border-top-radius(@widget-rounding); }
         &:last-child{ .border-bottom-radius(@widget-rounding); }
     }
+
+    > input[type=text],
+    > input[type=number],
+    > input[type=email] {
+        margin-bottom: 10px;
+    }
 }
 
 // --------------------------------------------------------------- TYPOGRAPHY
