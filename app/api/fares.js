@@ -7,7 +7,7 @@ Driver = require('../models/driver');
 
 async = require('async');
 
-twilio = require('twilio')('AC809e521fada9dc4856328d497fc32572', 'ee70f34af8bc81af705c79d467a8fd26');
+twilio = require('twilio')('<account>', '<key>');
 
 module.exports = function(app) {
   var lookup, report;
